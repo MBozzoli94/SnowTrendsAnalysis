@@ -10,3 +10,9 @@ In the following repository are included all the data, plots, codes and operatio
 The data analysis was suddived in two parts. The first part was entirely dedicated to the collection and manipulation of fresh snow data in Trentino - South Tyrol. In particular, a monthly aggregation was performed starting from daily data. The dataset was then updated to 2019/2020 season and subjected to a gap filling procedure. At this point, the dataset was analysed and a quality check procedure was conducted.
 
 Instead, the second part was devoted to the real analysis of the data. More in detail, first of all a trend analysis was conducted using statistical tests such as the MannKendall trend test (cit.) and the Sen's slope estimator (cit.). Then, the trend attribution was evaluated, first using a correlation analysis and then an explained variance analysis.
+
+### R code
+-----------
+
+### Plots
+----------
