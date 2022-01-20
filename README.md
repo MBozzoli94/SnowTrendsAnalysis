@@ -33,4 +33,8 @@ Sen, P. K. (1968). â€œEstimates of the regression coefficient based on Kendallâ€
 
 
 
+_____
+#### DOI
+[![DOI](https://zenodo.org/badge/447151538.svg)](https://zenodo.org/badge/latestdoi/447151538)
+
 
