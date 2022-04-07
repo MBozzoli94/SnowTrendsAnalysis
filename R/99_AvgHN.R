@@ -1,6 +1,9 @@
 library(raster)
 library(trend)
 library(TeachingDemos)
+library(segmented)
+# library(strucchange)
+# library(EnvCpt)
 
 
 
@@ -73,47 +76,148 @@ dev.off()
 Data_Avg2 <- Data_Avg[order(Data_Avg$Elevation),]
 Data_Avg2 <- na.omit(Data_Avg2)
 rownames(Data_Avg2) <- NULL
-Ptest <- pettitt.test(Data_Avg2$HN)
-CP <- as.numeric(Ptest$estimate)
 
-LR_HN <- lm(Data_Avg2$HN ~ Data_Avg2$Elevation)
-LR_HN_i <- LR_HN[["coefficients"]][[1]]
-LR_HN_s <- 100*LR_HN[["coefficients"]][[2]]
-LR_HN_se <- 100*summary(LR_HN)$"coefficients"[2,2]
 
-LR_HN1 <- lm(Data_Avg2$HN[1:CP] ~ Data_Avg2$Elevation[1:CP])
-LR_HN_i1 <- LR_HN1[["coefficients"]][[1]]
-LR_HN_s1 <- 100*LR_HN1[["coefficients"]][[2]]
-LR_HN_se1 <- 100*summary(LR_HN1)$"coefficients"[2,2]
-X1 <- c(Data_Avg2$Elevation[1],Data_Avg2$Elevation[CP])
-Y1 <- c(LR_HN_s1/100*X1[1]+LR_HN_i1,LR_HN_s1/100*X1[2]+LR_HN_i1)
 
-LR_HN2 <- lm(Data_Avg2$HN[(CP+1):length(Data_Avg2$HN)] ~ Data_Avg2$Elevation[(CP+1):length(Data_Avg2$HN)])
-LR_HN_i2 <- LR_HN2[["coefficients"]][[1]]
-LR_HN_s2 <- 100*LR_HN2[["coefficients"]][[2]]
-LR_HN_se2 <- 100*summary(LR_HN2)$"coefficients"[2,2]
-X2 <- c(Data_Avg2$Elevation[CP+1],Data_Avg2$Elevation[length(Data_Avg2$HN)])
-Y2 <- c(LR_HN_s2/100*X2[1]+LR_HN_i2,LR_HN_s2/100*X2[2]+LR_HN_i2)
 
-png("99_AvgHN/Plots/AvgHN_v2_2.png", width=1550, height=1200, res=100)
+# # PETTITT + LM #
+# Ptest <- pettitt.test(Data_Avg2$HN)
+# CP <- as.numeric(Ptest$estimate)
+# 
+# # LR_HN <- lm(Data_Avg2$HN ~ Data_Avg2$Elevation)
+# # LR_HN_i <- LR_HN[["coefficients"]][[1]]
+# # LR_HN_s <- 100*LR_HN[["coefficients"]][[2]]
+# # LR_HN_se <- 100*summary(LR_HN)$"coefficients"[2,2]
+#  
+# LR_HN1 <- lm(Data_Avg2$HN[1:CP] ~ Data_Avg2$Elevation[1:CP])
+# LR_HN_i1 <- LR_HN1[["coefficients"]][[1]]
+# LR_HN_s1 <- 100*LR_HN1[["coefficients"]][[2]]
+# LR_HN_se1 <- 100*summary(LR_HN1)$"coefficients"[2,2]
+# X1 <- c(Data_Avg2$Elevation[1],Data_Avg2$Elevation[CP])
+# Y1 <- c(LR_HN_s1/100*X1[1]+LR_HN_i1,LR_HN_s1/100*X1[2]+LR_HN_i1)
+# 
+# LR_HN2 <- lm(Data_Avg2$HN[(CP+1):length(Data_Avg2$HN)] ~ Data_Avg2$Elevation[(CP+1):length(Data_Avg2$HN)])
+# LR_HN_i2 <- LR_HN2[["coefficients"]][[1]]
+# LR_HN_s2 <- 100*LR_HN2[["coefficients"]][[2]]
+# LR_HN_se2 <- 100*summary(LR_HN2)$"coefficients"[2,2]
+# X2 <- c(Data_Avg2$Elevation[CP+1],Data_Avg2$Elevation[length(Data_Avg2$HN)])
+# Y2 <- c(LR_HN_s2/100*X2[1]+LR_HN_i2,LR_HN_s2/100*X2[2]+LR_HN_i2)
+# 
+# png("99_AvgHN/Plots/AvgHN_v2_2.png", width=1550, height=1200, res=100)
+# par(mar=c(7.5,7.5,0.5,0.5), mgp=c(5.5,1.3,0))
+# 
+# plot(Data_Avg$Elevation, Data_Avg$HN, xaxt="n", yaxt="n", ylim=c(0,600), xlim=c(0,3000),
+#      xlab="Elevation [m]", ylab="Average total seasonal HN [cm]", type="p", pch=1, cex=2.5, lwd=2, cex.axis=2, cex.lab=2.4)
+# # abline(LR_HN, col="black", lty=1, lwd=4)
+# lines(X1, Y1, col="#006BFF", lty=1, lwd=4)
+# lines(X2, Y2, col="#EC00FF", lty=1, lwd=4)
+# abline(v=Data_Avg2$Elevation[CP], col="red", lty=2, lwd=5)
+# grid(nx=NULL, ny=NULL, lty=2, lwd=2, col="gray")
+# axis(side=1, at=seq(0,3000,500), labels=seq(0,3000,500), las=1, cex.axis=2, tck=-0.01, xaxs="i")
+# axis(side=2, at=seq(0,600,50), labels=seq(0,600,50), las=2, cex.axis=2, tck=-0.01, xaxs="i")
+# # legend("topleft", col=c("#006BFF","#EC00FF","red"), lty=c(1,1,2), lwd=c(4,4,5), cex=1.8, bty="n", y.intersp=1.2,
+# #        legend=c(# paste0("y = ",round(LR_HN_s,3),"*x - ",abs(round(LR_HN_i,3))),
+# #                 paste0("y = ",round(LR_HN_s1,3),"*x - ",abs(round(LR_HN_i1,3))),
+# #                 paste0("y = ",round(LR_HN_s2,3),"*x - ",abs(round(LR_HN_i2,3))),
+# #                 paste0("CP: ",Data_Avg2$Elevation[CP]," m")))
+# legend("topleft", col=c("#006BFF","#EC00FF","red"), lty=c(1,1,2), lwd=c(4,4,5), cex=1.8, bty="n", y.intersp=1.2,
+#        legend=c("y1","y2","CP"))
+# 
+# dev.off()
+
+
+
+
+# # CP + LINEAR TREND LINE #
+# Fit_envcpt <- envcpt(Data_Avg2$HN)
+# 
+# png("99_AvgHN/Plots/AvgHN_v2_3.png", width=1550, height=1200, res=100)
+# par(mar=c(7.5,7.5,0.5,0.5), mgp=c(5.5,1.3,0))
+# 
+# plot(Fit_envcpt$trendcpt, xaxt="n", yaxt="n", ylim=c(0,600), xlim=c(0,82),
+#      xlab="Elevation [m]", ylab="Average total seasonal HN [cm]", lwd=4, cex.axis=2, cex.lab=2.4)
+# abline(v=head(Fit_envcpt[["meancpt"]]@cpts, -1), col="red", lty=2, lwd=5)
+# grid(nx=NULL, ny=NULL, lty=2, lwd=2, col="gray")
+# axis(side=1, at=seq(1,81,20), labels=Data_Avg2$Elevation[seq(1,81,20)], las=1, cex.axis=2, tck=-0.01, xaxs="i")
+# axis(side=2, at=seq(0,600,50), labels=seq(0,600,50), las=2, cex.axis=2, tck=-0.01, xaxs="i")
+# legend("topleft", legend=paste0("CP: ",head(Data_Avg2$Elevation[Fit_envcpt[["meancpt"]]@cpts], -1)," m"),
+#        col="red", lty=2, lwd=4, cex=1.8, bty="n")
+# 
+# dev.off()
+
+
+
+
+# # CP + MULTIFITTING LINES #
+# Elevation <- 1:81
+# HN <- Data_Avg2$HN
+# 
+# Fit_envcpt <- envcpt(HN)
+# 
+# fit1 <- lm(HN ~ Elevation) # fit first degree polynomial equation
+# fit2 <- lm(HN ~ poly(Elevation,2,raw=TRUE)) # second degree
+# fit3 <- lm(HN ~ poly(Elevation,3,raw=TRUE)) # third degree
+# fit4 <- lm(HN ~ poly(Elevation,4,raw=TRUE)) # fourth degree
+# 
+# png("99_AvgHN/Plots/AvgHN_v2_4.png", width=1550, height=1200, res=100)
+# par(mar=c(7.5,7.5,0.5,0.5), mgp=c(5.5,1.3,0))
+# 
+# plot(Elevation, HN, xaxt="n", yaxt="n", ylim=c(0,600), xlim=c(0,82),
+#      xlab="Elevation [m]", ylab="Average total seasonal HN [cm]", type="p", pch=1, cex=2.5, lwd=2, cex.axis=2, cex.lab=2.4)
+# lines(Elevation, predict(fit1, data.frame(x=Elevation)), col="red", lwd=4)
+# lines(Elevation, predict(fit2, data.frame(x=Elevation)), col="green", lwd=4)
+# lines(Elevation, predict(fit3, data.frame(x=Elevation)), col="blue", lwd=4)
+# lines(Elevation, predict(fit4, data.frame(x=Elevation)), col="purple", lwd=4)
+# abline(v=head(Fit_envcpt[["meancpt"]]@cpts, -1), col="red", lty=2, lwd=5)
+# grid(nx=NULL, ny=NULL, lty=2, lwd=2, col="gray")
+# axis(side=1, at=seq(1,81,20), labels=Data_Avg2$Elevation[seq(1,81,20)], las=1, cex.axis=2, tck=-0.01, xaxs="i")
+# axis(side=2, at=seq(0,600,50), labels=seq(0,600,50), las=2, cex.axis=2, tck=-0.01, xaxs="i")
+# legend("topleft", legend=c(paste0("CP: ",head(Data_Avg2$Elevation[Fit_envcpt[["meancpt"]]@cpts], -1)," m"),
+#                            "poly_1","poly_2","poly_3","poly_4"),
+#        col=c("red","red","red","red","red","green","blue","purple"), lty=c(2,2,2,2,1,1,1,1), lwd=4, cex=1.8, bty="n")
+# 
+# dev.off()
+
+
+
+
+# FUNCT SEGMENTED + GLM #
+fit_glm <- glm(HN ~ Elevation, family=Gamma("log"), data=Data_Avg2) # family=Gamma("log")
+fit_seg <- segmented(fit_glm, seg.Z = ~ Elevation, npsi = 3)
+
+summary(fit_seg)
+
+plot(fit_seg)
+points(Data_Avg2$Elevation,log(Data_Avg2$HN))
+lines.segmented(fit_seg)
+points.segmented(fit_seg)
+
+png("99_AvgHN/Plots/AvgHN_v2_5.png", width=1550, height=1200, res=100)
 par(mar=c(7.5,7.5,0.5,0.5), mgp=c(5.5,1.3,0))
 
-plot(Data_Avg$Elevation, Data_Avg$HN, xaxt="n", yaxt="n", ylim=c(0,600), xlim=c(0,3000),
+plot(Data_Avg$Elevation, log(Data_Avg$HN), xaxt="n", yaxt="n", ylim=c(2,6.5), xlim=c(0,3000),
      xlab="Elevation [m]", ylab="Average total seasonal HN [cm]", type="p", pch=1, cex=2.5, lwd=2, cex.axis=2, cex.lab=2.4)
-# abline(LR_HN, col="red", lty=1, lwd=4)
-# lines(X1, Y1, col="blue", lty=1, lwd=4)
-# lines(X2, Y2, col="green", lty=1, lwd=4)
-abline(v=Data_Avg2$Elevation[CP], col="red", lty=2, lwd=5)
+abline(v=summary(fit_seg)$psi[,2], col="red", lty=2, lwd=5)
+plot(fit_seg, col="blue", lwd=2, add=T)
+lines.segmented(fit_seg, col="blue", pch=4, lwd=1)
+points.segmented(fit_seg, col="blue", pch=4, cex=4, lwd=4)
+grid(nx=NULL, ny=NULL, lty=2, lwd=2, col="gray")
 axis(side=1, at=seq(0,3000,500), labels=seq(0,3000,500), las=1, cex.axis=2, tck=-0.01, xaxs="i")
-axis(side=2, at=seq(0,600,50), labels=seq(0,600,50), las=2, cex.axis=2, tck=-0.01, xaxs="i")
-legend("topleft", legend=paste0("CP: ",Data_Avg2$Elevation[CP]," m"), col="red", lty=2, lwd=4, cex=1.8, bty="n")
-# legend("topleft", col=c("blue","green","red"), lty=c(1,1,2), lwd=c(3,3,4), cex=1.5, bty="n", y.intersp=1.2,
-#        legend=c(# paste0("y = ",round(LR_HN_s,3),"*x - ",abs(round(LR_HN_i,3))),
-#                 paste0("y = ",round(LR_HN_s1,3),"*x - ",abs(round(LR_HN_i1,3))),
-#                 paste0("y = ",round(LR_HN_s2,3),"*x - ",abs(round(LR_HN_i2,3))),
-#                 paste0("CP: ",Data_Avg2$Elevation[CP]," m")))
+axis(side=2, at=seq(2,6.5,0.5), labels=seq(2,6.5,0.5), las=2, cex.axis=2, tck=-0.01, xaxs="i")
+legend("topleft", legend=paste0("CP: ",round(summary(fit_seg)$psi[,2], 0)," m"),
+       col="red", lty=2, lwd=4, cex=1.8, bty="n")
 
 dev.off()
+
+
+
+
+# # FUNCT BREAKPOINTS (STRUCCHANGE) #
+# fit_bp = breakpoints(HN ~ Elevation, data = Data_Avg2, breaks = 3)
+# summary(fit_bp)
+
+
+
 
 ### Box Plot ###
 NS <- as.data.frame(matrix(nrow=3, ncol=2))

@@ -327,7 +327,6 @@ Rt <- 6371
 conv <- pi/180
 dist_r <- matrix(nrow=length(meta[,1]), ncol=N)
 delta_z <- matrix(nrow=length(meta[,1]), ncol=N)
-wh <- matrix(nrow=length(meta[,1]), ncol=N)
 
 for (ii in 1:N) {
   angle <- sin(conv*meta$Latitude) * sin(conv*meta$Latitude[ii]) + cos(conv*meta$Latitude) * cos(conv*meta$Latitude[ii]) * cos(abs(conv*meta$Longitude-conv*meta$Longitude[ii])) 
@@ -339,10 +338,12 @@ for (ii in 1:N) {
 # Halving coefficients for weights: 20km for distance and 200m for elevation difference #
 halv_dist <- 20
 halv_elev <- 200
-c_dist <- (halv_dist)^2/log(2)
+c_dist <- (halv_dist^2)/log(2)
 c_h <- (halv_elev^2)/log(2)
+
 wd <- exp(-(dist_r^2)/c_dist)
 
+wh <- matrix(nrow=length(meta[,1]), ncol=N)
 for (t in 1:N) {
   wh[,t] <- exp(-(delta_z[,t]^2)/c_h)
 }
@@ -424,6 +425,11 @@ for (a in 3:ncol(mat_filled2)) {
   mat_filled2[,a][which(is.na(mat_filled2[,a]))] <- NA
   if (is.numeric(mat_filled2[,a]) == T) {mat_filled2[,a] <- round(mat_filled2[,a], digits=0)}
 }
+
+n_NA1 <- colSums(is.na(dati[,-c(1:2)]))/length(dati$Year)*100
+n_NA2 <- colSums(is.na(mat_filled2[,-c(1:2)]))/length(mat_filled2$Year)*100
+delta_n_NA <- n_NA1 - n_NA2
+gain_m_n_NA <- mean(delta_n_NA)
 
 # write.table(mat_filled2, "00_Data/04_GapFilledData/GapFilled_Data_HN.csv", sep=";", row.names=F)
 
@@ -1155,8 +1161,10 @@ Date <- paste(m, y, sep="-")
 Date <- Date[-c(1:2)]
 Date <- head(Date, -1)
 
-CP_HN <- cbind(Meta,NA,NA)
-colnames(CP_HN)[c(6:7)] <- c("CP","Delta")
+a <- 0.05
+
+CP_HN <- cbind(Meta,NA,NA,NA,NA)
+colnames(CP_HN)[c(6:9)] <- c("CP","CP_i","Delta","p_value")
 
 TAA <- shapefile("FinalData/TopographicData/TAA.shp")
 TAA <- spTransform(TAA, crs("+proj=longlat +datum=WGS84"))
@@ -1195,7 +1203,9 @@ for (i in 1:length(Meta$Name)) {
     M <- Data_X$Month[CP1]
     Y <- Data_X$Year[CP1]
     if (M < 10) {CP_HN[i,6] <- paste(Y,M,sep="0")} else {CP_HN[i,6] <- paste0(Y,M)}
-    CP_HN[i,7] <- d
+    CP_HN[i,7] <- CP1
+    CP_HN[i,8] <- d
+    CP_HN[i,9] <- Ptest$p.value
     
     HN1_plot <- HN1
     HN1_plot[which(is.na(HN1_plot))] <- 0.3
@@ -1230,12 +1240,26 @@ CP_HN$CP <- as.numeric(CP_HN$CP)
 # write.table(CP_HN, "00_Data/08_DataQualityCheck/CP_HN.csv", sep=";", row.names=F)
 
 # Plotting Altitude CP Distribution #
-png(paste0("00_Data/08_DataQualityCheck/Plots/CP/Altitude_CP.png"), width=1100, height=1000, res=100)
+CP_HN <- read.csv("00_Data/08_DataQualityCheck/CP_HN.csv", header=T, sep=";")
+
+CP_HN$Pch <- NA
+CP_HN$Pch[which(CP_HN$Delta < 0 & CP_HN$p_value <= a)] <- 25
+CP_HN$Pch[which(CP_HN$Delta > 0 & CP_HN$p_value <= a)] <- 24
+CP_HN$Pch[which(CP_HN$Delta < 0 & CP_HN$p_value > a)] <- 6
+CP_HN$Pch[which(CP_HN$Delta > 0 & CP_HN$p_value > a)] <- 2
+
+CP_HN$Col <- NA
+CP_HN$Col[which(CP_HN$Delta < 0)] <- "red"
+CP_HN$Col[which(CP_HN$Delta > 0)] <- "blue"
+
+png(paste0("00_Data/08_DataQualityCheck/Plots/CP/Altitude_CP_v2.png"), width=1100, height=1000, res=100)
 par(mar=c(6,6,0.5,0.5), mgp=c(4.5,1,0))
 
-plot(CP_HN$CP, CP_HN$Elevation, xaxt="n", yaxt="n", xlim=c(198011,202003), ylim=c(0,3000),
-     xlab="Date", ylab="Elevation [m]", type="p", pch=1, cex=2, lwd=2.5, cex.axis=1.5, cex.lab=1.5)
-axis(side=1, at=round(seq(198012,202002,length.out=5), 0), labels=c("12-1980","10-1990","07-2000","04-2010","02-2020"),
+plot(CP_HN$CP_i, CP_HN$Elevation, xaxt="n", yaxt="n", xlim=c(1,120), ylim=c(0,3000),
+     xlab="Date", ylab="Elevation [m]", type="p", pch=CP_HN$Pch, col=CP_HN$Col, bg=CP_HN$Col,
+     cex=3, lwd=2.5, cex.axis=1.7, cex.lab=1.8)
+grid(nx=NULL, ny=NULL, lty=2, lwd=2, col="gray")
+axis(side=1, at=seq(1,120,length.out=7), labels=Date[seq(1,120,length.out=7)],
      las=1, cex.axis=1.5, tck=-0.01, xaxs="i")
 axis(side=2, at=seq(0,3000,length.out=7), labels=seq(0,3000,length.out=7),
      las=2, cex.axis=1.5, tck=-0.01, xaxs="i")
