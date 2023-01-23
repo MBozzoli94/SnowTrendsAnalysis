@@ -39,6 +39,6 @@ _____
 #### DOI
 Dataset: [![DOI](https://zenodo.org/badge/447151538.svg)](https://zenodo.org/badge/latestdoi/447151538)
 
-Full article: [![DOI]https://doi.org/10.1002/joc.8002
+Full article: https://doi.org/10.1002/joc.8002
 
 
