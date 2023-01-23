@@ -7,8 +7,8 @@ library(zoo)
 
 ##### DATA #####
 ### Monthly ###
-Data1 <- read.csv("04_TrendAO/Data.csv", header=T, sep=";")
-Data2 <- cbind(read.fwf("04_TrendAO/Data.csv", header=T, sep=";", widths=c(4,2),
+Data1 <- read.csv("FinalData/Data_AO_raw.csv.csv", header=T, sep=";")
+Data2 <- cbind(read.fwf("FinalData/Data_AO_raw.csv.csv", header=T, sep=";", widths=c(4,2),
                        colClasses="numeric", col.names=c("Year","Month")),
                Data1[,2])
 Data2 <- Data2[which(Data2$Month == 10 | Data2$Month == 11 | Data2$Month == 12 |
