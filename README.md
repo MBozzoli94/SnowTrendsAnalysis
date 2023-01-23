@@ -1,6 +1,7 @@
 # SnowTrendsAnalysis
 
 In the following repository are included all the data, plots, codes and operations used for the paper "Diverging snowfall trends across months and elevation in the northeastern Italian Alps" by Bertoldi et al. 2023. Please note that when the data are used, both the dataset and the paper should be cited. See the section **DOI** to access to the dataset and the full article. 
+
 The repository contains:
 - **PreliminaryData_1**, **PreliminaryData_2**: *.zip* folders with all the preliminary operations on the raw data, as the data quality check and the gap filling procedure. Plots of the results coming from the data analysis are also included
 - **FinalData**: folder with the final version data of fresh snow (HN), snow depth (HS), precipitation (P), mean air temperature (TMEAN), north atlantic oscillation index (NAO) and arctic oscillation index (AO). *_S* stays for seasonal data. In addition it is also included the **TopographicData** folder, with *DEM* and *.shp* files of the Trentino - South Tyrol region
@@ -37,6 +38,7 @@ Sen, P. K. (1968). â€œEstimates of the regression coefficient based on Kendallâ€
 _____
 #### DOI
 Dataset: [![DOI](https://zenodo.org/badge/447151538.svg)](https://zenodo.org/badge/latestdoi/447151538)
-Full article: https://doi.org/10.1002/joc.8002
+
+Full article: [![DOI]https://doi.org/10.1002/joc.8002
 
 
